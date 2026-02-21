@@ -1,40 +1,52 @@
 import os
-import whisper
 from groq import Groq
-from dotenv import load_dotenv
+from moviepy.editor import VideoFileClip
 
-load_dotenv()
-
-print("Loading Whisper Moodel...")
-whisper_model = whisper.load_model("base")
-
-def generate_viral_metada(video_path: str):
-    """Transcribes the video and generates a viral caption using LLama-3."""
-    print("Generating metadata...")
+def generate_viral_metadata(video_path: str):
+    """Extracts audio, transcribes it via Groq Cloud, and generates a viral caption."""
+    print("[3/3] Extracting audio for AI analysis...")
     
-    # 1. Transcribe audio using Whisper (extracts audio from mp4)
-    result = whisper_model.transcribe(video_path)
-    transcript = result['text']
-
-    print(f"Transcript generated: '{transcript[:50]}...'")
-    print("[3/3] Generating viral caption using LLaMA-3...")
-
-
-    # 2. Call Groq
-    api_key = os.getenv("GROQ_API_KEY")
+    api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
-        return "Error: GROQ_API_KEY not set in environment variables."
-    
+        return "⚠️ GROQ_API_KEY not found."
+        
     client = Groq(api_key=api_key)
-    prompt = f""" 
-    You are a social media expert, especially in TikTok/Reels Growth Marketer, specializing in creating viral content. 
+    
+    # 1. Extract audio from the video and save as a temporary mp3
+    audio_path = "temp_audio.mp3"
+    video = VideoFileClip(video_path)
+    # Extract audio silently
+    video.audio.write_audiofile(audio_path, logger=None) 
+    video.close()
+    
+    print("[3/3] Transcribing audio with Groq Whisper-Large-v3...")
+    
+    # 2. Send the audio file to Groq's Whisper API
+    with open(audio_path, "rb") as file:
+        transcription = client.audio.transcriptions.create(
+          file=(audio_path, file.read()),
+          model="whisper-large-v3",
+        )
+    transcript = transcription.text
+    
+    # Clean up the temporary audio file
+    if os.path.exists(audio_path):
+        os.remove(audio_path)
+        
+    print(f"Transcript: '{transcript[:50]}...'")
+    print("[3/3] Generating viral caption with Llama-3...")
+    
+    # 3. Generate the viral caption using Llama 3
+    prompt = f"""
+    You are an expert TikTok/Reels Growth Marketer. 
     I will give you a video transcript. You must write a highly viral, engaging caption 
     (under 2 sentences) and include exactly 5 trending hashtags.
-
+    
     Transcript: "{transcript}"
-
-    Out ONLY the caption and hashtags.
+    
+    Output ONLY the caption and hashtags.
     """
+    
     chat_completion = client.chat.completions.create(
         messages=[{"role": "user", "content": prompt}],
         model="llama3-8b-8192",
@@ -42,5 +54,5 @@ def generate_viral_metada(video_path: str):
     
     caption = chat_completion.choices[0].message.content
     print("[3/3] AI Generation complete!")
-
+    
     return caption

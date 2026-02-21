@@ -3,7 +3,5 @@ uvicorn
 yt-dlp
 moviepy==1.0.3
 groq
-openai-whisper
 python-multipart
 pydantic
-dotenv
