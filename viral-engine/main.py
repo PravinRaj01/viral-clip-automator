@@ -15,6 +15,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    return {
+        "status": "online", 
+        "message": "Viral Clip Automator Engine is running! Please use the frontend UI to submit video POST requests."
+    }
+
 class VideoRequest(BaseModel):
     url: str
 
