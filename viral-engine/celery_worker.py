@@ -1,4 +1,3 @@
-Python
 import os
 from celery import Celery
 from dotenv import load_dotenv
