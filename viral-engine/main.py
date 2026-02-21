@@ -10,10 +10,8 @@ app = FastAPI(title="Viral Growth Engine API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://viral-clip-automator.vercel.app/"
-    ],
+    allow_origins=["*"],
+    allow_credentials=False, # This MUST be False when using "*"
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -38,7 +36,7 @@ async def process_video(request: VideoRequest):
         edited_video = video_editor.process_video(raw_video_path, "final_viral_clip.mp4")
 
         # Step 3: Generate viral caption using AI
-        caption = ai_agent.generate_viral_metada(edited_video)
+        caption = ai_agent.generate_viral_metadata(edited_video)
 
         return {
             "status": "success",
