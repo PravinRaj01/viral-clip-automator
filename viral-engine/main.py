@@ -44,4 +44,5 @@ async def process_video(request: VideoRequest):
             "video_path": edited_video,
             "caption": caption}
     except Exception as e:
+        print(f"🔥🔥🔥 CRITICAL ERROR: {str(e)}") # <-- This will now print to your Render logs!
         raise HTTPException(status_code=500, detail=str(e))

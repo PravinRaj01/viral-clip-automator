@@ -29,7 +29,7 @@ def process_video(input_path: str, output_path = "final_viral_clip.mp4"):
         clip = clip.crop(x1=0, y1=y1, x2=width, y2=y2)
     
     # Add viral call to action overlay
-    txt_clip = TextClip("Link in Bio!", fontsize=40, color='white', font='Arial-Bold')
+    txt_clip = TextClip("LINK IN BIO!", fontsize=50, color='white', bg_color='red')
     txt_clip = txt_clip.set_position(('center', 'top')).set_duration(clip.duration).margin(top=20, opacity=0)
 
     final_video = CompositeVideoClip([clip, txt_clip])
