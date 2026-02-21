@@ -1,58 +1,46 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import downloader
-import video_editor
-import ai_agent
 from fastapi.responses import FileResponse
+from celery.result import AsyncResult
 import os
+from celery_worker import celery_app, process_video_task
 
-
-app = FastAPI(title="Viral Growth Engine API")
+app = FastAPI(title="Viral Automator Async Engine")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=False, # This MUST be False when using "*"
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.get("/")
-async def root():
-    return {
-        "status": "online", 
-        "message": "ViralAutomator Engine is running! Please use the frontend UI to submit video POST requests."
-    }
 
 class VideoRequest(BaseModel):
     url: str
 
 @app.post("/api/process-video")
-async def process_video(request: VideoRequest):
-    try:
-        # Step 1: Download video
-        raw_video_path = downloader.download_video_from_url(request.url, "raw_video.mp4")
+async def start_processing(request: VideoRequest):
+    # Trigger the background task
+    task = process_video_task.delay(request.url)
+    # Return the ID immediately (no more 60s timeout!)
+    return {"task_id": task.id}
 
-        # Step 2: Process and edit video
-        edited_video = video_editor.process_video(raw_video_path, "final_viral_clip.mp4")
-
-        # Step 3: Generate viral caption using AI
-        caption = ai_agent.generate_viral_metadata(edited_video)
-
-        return {
-            "status": "success",
-            "message": "Video processed successfully!",
-            "video_path": edited_video,
-            "caption": caption}
-    except Exception as e:
-        print(f"🔥🔥🔥 CRITICAL ERROR: {str(e)}") # <-- This will now print to your Render logs!
-        raise HTTPException(status_code=500, detail=str(e))
+@app.get("/api/task-status/{task_id}")
+async def get_status(task_id: str):
+    result = AsyncResult(task_id, app=celery_app)
     
+    if result.state == 'SUCCESS':
+        return {"status": "completed", "result": result.result}
+    elif result.state == 'FAILURE':
+        return {"status": "failed", "error": str(result.info)}
+    else:
+        # Includes PENDING, STARTED, etc.
+        return {"status": "processing"}
+
 @app.get("/api/download-video")
-async def download_video():
+async def download():
     file_path = "final_viral_clip.mp4"
     if os.path.exists(file_path):
-        return FileResponse(path=file_path, media_type="video/mp4", filename="viral_clip_ready.mp4")
-    else:
-        raise HTTPException(status_code=404, detail="Video not found.")
+        return FileResponse(file_path, media_type="video/mp4", filename="viral_clip.mp4")
+    raise HTTPException(status_code=404, detail="File not ready")
