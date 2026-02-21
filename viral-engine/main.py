@@ -6,7 +6,7 @@ import video_editor
 import ai_agent
 
 
-app = FastAPI("Viral Growth Engine API")
+app = FastAPI(title="Viral Growth Engine API")
 
 app.add_middleware(
     CORSMiddleware,
