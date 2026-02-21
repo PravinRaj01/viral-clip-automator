@@ -38,10 +38,12 @@ def process_video(input_path: str, output_path = "final_viral_clip.mp4"):
     # Write the result (Removed the "path=" bug)
     final_video.write_videofile(
         output_path,
-        codec='libx264',
-        audio_codec='aac', 
-        fps=24,
-        logger=None
+        codec="libx264",
+        audio_codec="aac",
+        fps=24,             # Lowering FPS reduces memory load
+        preset="ultrafast", # Faster encoding uses less RAM
+        threads=1,          # LIMIT to 1 thread to prevent memory spikes
+        ffmpeg_params=["-crf", "28"] # Compresses more to save memory
     )
 
     clip.close()
