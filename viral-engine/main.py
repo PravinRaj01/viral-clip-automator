@@ -10,7 +10,10 @@ app = FastAPI(title="Viral Growth Engine API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # for vercel
+    allow_origins=[
+        "http://localhost:3000",
+        "https://your-app-name.vercel.app" # <-- Paste your exact Vercel URL here
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )

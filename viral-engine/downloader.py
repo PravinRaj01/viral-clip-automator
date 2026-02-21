@@ -7,8 +7,9 @@ def download_video_from_url(url: str, output_filename = "raw_video.mp4"):
         os.remove(output_filename)
 
     ydl_opts = {
-        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
         'outtmpl': output_filename,
+        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+        'cookiefile': 'cookies.txt',
         'quiet': True,
         'no_warnings': True,
     }
