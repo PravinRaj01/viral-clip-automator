@@ -12,7 +12,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://your-app-name.vercel.app" # <-- Paste your exact Vercel URL here
+        "https://viral-clip-automator.vercel.app/"
     ],
     allow_methods=["*"],
     allow_headers=["*"],
