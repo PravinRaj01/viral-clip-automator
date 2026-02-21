@@ -22,7 +22,7 @@ app.add_middleware(
 async def root():
     return {
         "status": "online", 
-        "message": "Viral Clip Automator Engine is running! Please use the frontend UI to submit video POST requests."
+        "message": "ViralAutomator Engine is running! Please use the frontend UI to submit video POST requests."
     }
 
 class VideoRequest(BaseModel):
