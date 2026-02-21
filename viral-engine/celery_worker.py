@@ -1,19 +1,12 @@
 import os
 from celery import Celery
 from dotenv import load_dotenv
-import downloader
-import video_editor
-import ai_agent
 
 load_dotenv()
 
-# Change: Make sure we get the URL and provide a clear error if it's missing
 REDIS_URL = os.getenv("UPSTASH_REDIS_URL")
 
-if not REDIS_URL:
-    print("❌ ERROR: UPSTASH_REDIS_URL is not set in environment variables!")
-
-# Initialize Celery with explicit broker and backend
+# Force SSL settings for Upstash
 celery_app = Celery(
     "video_tasks",
     broker=REDIS_URL,
@@ -21,15 +14,15 @@ celery_app = Celery(
 )
 
 celery_app.conf.update(
-    task_serializer='json',
-    accept_content=['json'],
-    result_serializer='json',
-    worker_prefetch_multiplier=1,
-    task_acks_late=True,
+    broker_use_ssl={
+        'ssl_cert_reqs': 'none' # Required for serverless providers like Upstash
+    },
+    redis_backend_use_ssl={
+        'ssl_cert_reqs': 'none'
+    },
     broker_connection_retry_on_startup=True,
-    # Add this to ensure it doesn't look for RabbitMQ (amqp)
-    broker_url=REDIS_URL,
-    result_backend=REDIS_URL
+    worker_prefetch_multiplier=1,
+    task_acks_late=True
 )
 
 @celery_app.task(bind=True, name="process_video_task")
