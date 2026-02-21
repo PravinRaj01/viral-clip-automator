@@ -8,7 +8,8 @@ def download_video_from_url(url: str, output_filename = "raw_video.mp4"):
 
     ydl_opts = {
         'outtmpl': output_filename,
-        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+        'format': 'bestvideo+bestaudio/best', # Grabs the highest quality available
+        'merge_output_format': 'mp4',         # Forces it into an MP4 container
         'cookiefile': 'cookies.txt',
         'quiet': True,
         'no_warnings': True,
