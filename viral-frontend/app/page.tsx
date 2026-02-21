@@ -86,9 +86,12 @@ export default function Home() {
               <div className="bg-zinc-950 p-4 rounded text-sm text-zinc-300 font-mono whitespace-pre-wrap">
                 {result.caption}
               </div>
-              <p className="text-xs text-zinc-500 italic mt-2">
-                *Request sent to: {BACKEND_URL}
-              </p>
+              
+              <a href={`${BACKEND_URL}/api/download-video`} target="_blank" rel="noopener noreferrer">
+                <Button className="w-full mt-3 bg-zinc-700 hover:bg-zinc-600 text-white">
+                  🎬 Download Edited Video
+                </Button>
+              </a>
             </div>
           )}
         </CardContent>

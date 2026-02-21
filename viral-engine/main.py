@@ -4,6 +4,8 @@ from pydantic import BaseModel
 import downloader
 import video_editor
 import ai_agent
+from fastapi.responses import FileResponse
+import os
 
 
 app = FastAPI(title="Viral Growth Engine API")
@@ -46,3 +48,11 @@ async def process_video(request: VideoRequest):
     except Exception as e:
         print(f"🔥🔥🔥 CRITICAL ERROR: {str(e)}") # <-- This will now print to your Render logs!
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/api/download-video")
+async def download_video():
+    file_path = "final_viral_clip.mp4"
+    if os.path.exists(file_path):
+        return FileResponse(path=file_path, media_type="video/mp4", filename="viral_clip_ready.mp4")
+    else:
+        raise HTTPException(status_code=404, detail="Video not found.")
